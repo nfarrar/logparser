@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Author: Nathan Farrar
-# @Date:   2014-10-14 11:28:09
+# @Author:             Nathan Farrar
+# @Date:               2014-10-14 11:28:09
 # @Last Modified by:   Nathan Farrar
-# @Last Modified time: 2014-10-14 20:09:20
-
+# @Last Modified time: 2014-10-14 20:12:52
 
 import csv
 import logging

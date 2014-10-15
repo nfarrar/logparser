@@ -98,4 +98,5 @@ target/
 sftp-config.json
 
 ### Project Specific ###
+NOTES.md
 data/*
