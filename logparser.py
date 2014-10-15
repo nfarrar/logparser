@@ -3,15 +3,45 @@
 # @Author:             Nathan Farrar
 # @Date:               2014-10-14 11:28:09
 # @Last Modified by:   Nathan Farrar
-# @Last Modified time: 2014-10-15 09:08:21
+# @Last Modified time: 2014-10-15 09:41:46
 
-# TODO: Add @wrapper for profiling executing times.
-# TODO: Unbind the field names from the methods & properties.
-# TODO: Use tabulate to build ascii tables from listDicts?
-# TODO: Use gnuplot/gnuplot.py to build ascii graphs from listDicts?
-# TODO: Colorize logging output when written to terminal.
-# TODO: Command line options. (CLIFF?)
-# TODO: Web front end.
+
+"""
+    This LogParser is intended to work with any type of 'network flow' logs:
+
+      - Proxy Logs
+      - IDS Logs
+      - HIPS Logs
+      - Firewall Logs
+      - etc
+
+    Extremely dirty ATM. Lots of hard-coded junk, breaks easily.
+
+    It probably makes sense to break LogParser into at least two separate
+    classes, one for working with records, and one for reading the log
+    files.
+
+    The way CSVParser is written atm is bound heavily to the field names
+    in the log files I'm parsing. This needs to be generalized.
+
+    To make it work with many different types of CSV files (and files in
+    general), it probably makes sense to build a generic LogReader object
+    that can be subclassed.
+
+    It also makes sense to move the backend storage to an in-memory Sqlite
+    database, rather than listDiccts, to make queries much more
+    straight-forward and extensible.
+
+    TODO:
+      - Unbind the field names from the methods & properties.
+      - Add @wrapper for profiling executing times.
+      - Colorize logging output when written to terminal.
+      - Add command line interface. (CLIFF?)
+      - Add web front end for browsing records?
+      - Use tabulate to build ascii tables from listDicts?
+      - Use gnuplot/gnuplot.py to build ascii graphs from listDicts? Matplotlib?
+      - Need to learn pandas for better statistical analysis.
+"""
 
 import csv
 import logging
@@ -100,7 +130,6 @@ class LogParser:
         """ Load records from a pickle file. """
         self.logger.debug("Loading data from a pickle file is not yet supported.")
         sys.exit(1)
-
 
     def load_csv(self, filename="data/records.csv"):
         """ Parse log records from a CSV file. """
@@ -341,16 +370,16 @@ if __name__ == '__main__':
     # print subset
 
     # Get a counter containing the domains.
-    # domains = parser.counter('url_netloc')
-    # pprint(domains)
+    domains = parser.counter('url_netloc')
+    pprint(domains)
 
     # Get a list of the file extensions.
-    # exts = parser.counter('url_ext')
-    # pprint(exts)
+    exts = parser.counter('url_ext')
+    pprint(exts)
 
     # Get a counter of the user-agent strings:
-    # uac = parser.counter('user_agent')
-    # pprint(uac)
+    uac = parser.counter('user_agent')
+    pprint(uac)
 
     # Get a counter of the url paths:
     # for record in parser.search('url_query', 'exe'):
