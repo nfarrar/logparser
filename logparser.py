@@ -3,18 +3,16 @@
 # @Author:             Nathan Farrar
 # @Date:               2014-10-14 11:28:09
 # @Last Modified by:   Nathan Farrar
-# @Last Modified time: 2014-10-14 20:19:00
+# @Last Modified time: 2014-10-14 20:33:55
 
 import csv
 import logging
 import json
 import re
 import sys
-
 from datetime import datetime
 
-
-
+import logging.config
 
 
 class LogParser:
@@ -188,7 +186,7 @@ class LogParser:
         dumping the data to a json file."""
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    logging.config.fileConfig('logging.ini')
     logger = logging.getLogger(__name__)
 
     csvfile = 'data/records.csv'
