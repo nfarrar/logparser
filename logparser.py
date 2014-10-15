@@ -3,14 +3,15 @@
 # @Author:             Nathan Farrar
 # @Date:               2014-10-14 11:28:09
 # @Last Modified by:   Nathan Farrar
-# @Last Modified time: 2014-10-15 00:15:56
+# @Last Modified time: 2014-10-15 09:08:21
 
 # TODO: Add @wrapper for profiling executing times.
 # TODO: Unbind the field names from the methods & properties.
 # TODO: Use tabulate to build ascii tables from listDicts?
 # TODO: Use gnuplot/gnuplot.py to build ascii graphs from listDicts?
 # TODO: Colorize logging output when written to terminal.
-
+# TODO: Command line options. (CLIFF?)
+# TODO: Web front end.
 
 import csv
 import logging
@@ -97,44 +98,69 @@ class LogParser:
 
     def load_pkl(self, filename="data/records.pkl"):
         """ Load records from a pickle file. """
-        pass
+        self.logger.debug("Loading data from a pickle file is not yet supported.")
+        sys.exit(1)
+
 
     def load_csv(self, filename="data/records.csv"):
         """ Parse log records from a CSV file. """
 
         try:
-            csvfile = open(filename, 'rb')
+            csvfile = open(filename, 'rU')
             self.logger.debug('Opened ' + filename + " for reading.")
+        except Exception, e:
+            self.logger.error("Failed to open " + filename + " for reading.", exc_info=True)
+            sys.exit(1)
 
-            # Identify the csv dialect when opening the file.
-            # self.dialect = csv.Sniffer().sniff(csvfile.read(1024))
-            # csvfile.seek(0)
+        # Identify the csv dialect when opening the file.
+        # self.dialect = csv.Sniffer().sniff(csvfile.read(1024))
+        # csvfile.seek(0)
 
-            # CSV dialect detection the Sniffer failed, hardcoding the
-            # dialect for now.
-            dialect = csv.excel
+        # CSV dialect detection the Sniffer failed, hardcoding the
+        # dialect for now.
+        dialect = csv.excel
 
-            # Parse the fields out and normalize their names. Make everything
-            # lowercase and replace spaces with underscores.
+        # Parse the fields out and normalize their names. Make everything
+        # lowercase and replace spaces with underscores.
+        try:
             self.fields = next(csvfile).rstrip().lower().replace(" ", "_").split(',')
             csvfile.seek(0)
+            self.logger.debug("Successfully parsed csv fields from header row.")
+        except Exception, e:
+            self.logger.error("An error occurred while parsing fields from header row.", exc_info=True)
+            sys.exit(1)
 
-            # Read the CSV as a dictionary, using the field mappings. For each row, add an
-            # additional field 'datetime', containing a python datetime object.
-
+        # Read the CSV as a dictionary, using the field mappings.
+        try:
             csv_reader = csv.DictReader(csvfile, fieldnames=self.fields, dialect=dialect)
-            # Skip the header row.
+            self.logger.debug("Created csv.DictReader using parsed fields from header.")
+        except Exception, e:
+            self.logger.error("An error occurred while attempting to create csv.DictReader.", exc_info=True)
+            sys.exit(1)
+
+        # Skip the header row.
+        try:
             n = next(csv_reader)
+            self.logger.debug("Moved cursor to second row.")
+        except Exception, e:
+            self.logger.error("Failed to move cursor to second row.", exc_info=True)
+            sys.exit(1)
 
-            record_count = 0
-            for row in csv_reader:
-                row = next(csv_reader)
+        # Iterate over the rows in the csv.
+        record_count = 0
+        for row in csv_reader:
 
-                # Insert the datetime as an object in a new field.
+            # Parse the time string field into a datetime object and insert it
+            # as a new field.
+            try:
                 row['datetime'] = LogParser.strtime_to_datetime(row['date_and_time'])
+            except Exception, e:
+                self.logger.error("Failed to parse datetime in " + filename + " on line " + str(record_count + 1) + ".", exc_info=True)
+                sys.exit(1)
 
-                # Split the url into parts and insert the parts as new fields.
-                # scheme='http', netloc='www.cwi.nl:80', path='/%7Eguido/Python.html', params='', query='', fragment='')
+            # Use urlparse to split the url into parts and insert the them as new fields.
+            # TODO: This needs to be abstracted to work with other CSV formats.
+            try:
                 urlparts = list(urlparse(row['url']))
                 row['url_scheme'] = urlparts[0]
                 row['url_netloc'] = urlparts[1]
@@ -142,18 +168,23 @@ class LogParser:
                 row['url_params'] = urlparts[3]
                 row['url_query'] = urlparts[4]
                 row['url_fragment'] = urlparts[5]
+            except Exception, e:
+                self.logger.error("Failed to parse url in " + filename + " on line " + str(record_count + 1) + ".", exc_info=True)
+                sys.exit(1)
 
-                # Parse the extension from the path and insert it into it's own field.
+            # Parse the extension from the path and insert it into a new field.
+            try:
                 row['url_ext'] = os.path.splitext(row['url_path'])[1][1:]
                 self.records.append(row)
-                record_count += 1
+            except Exception, e:
+                self.logger.error("Failed to parse url extension in " + filename + " on line " + str(record_count + 1) + ".", exc_info=True)
+                sys.exit(1)
 
-        except Exception, e:
-            self.logger.error("Failed to open " + filename + " for reading.", exc_info=True)
-            sys.exit(1)
-        else:
-            self.logger.info("Imported " + str(record_count) + " records from " + filename + ".")
-            csvfile.close()
+            record_count += 1
+
+        # Report statistics upon successful completion.
+        self.logger.info("Imported " + str(record_count) + " records from " + filename + ".")
+        csvfile.close()
 
         # Append the custom field labels to the fields list.
         self.fields.append('datetime')
@@ -167,19 +198,23 @@ class LogParser:
 
     def load_json(self, filename="data/records.json"):
         """ Load records from a json file. """
-        pass
+        self.logger.debug("Loading data from a json file is not yet supported.")
+        sys.exit(1)
 
     def load_sqlite(self, filename="data/sqlite.csv"):
         """ Load records from a sqlite database. """
-        pass
+        self.logger.debug("Loading data from a sqlite database is not yet supported.")
+        sys.exit(1)
 
     def save_pkl(self, filename="out/records.pkl"):
         """ Save records to a pickle file. """
-        pass
+        self.logger.debug("Saving data to a pickle file is not yet supported.")
+        sys.exit(1)
 
     def save_csv(self, filename="out/records.csv"):
         """ Write records to csv file. """
-        pass
+        self.logger.debug("Saving data to a csv file is not yet supported.")
+        sys.exit(1)
 
     def save_json(self, filename="out/records.csv"):
         """ Write records to json file. """
@@ -194,7 +229,8 @@ class LogParser:
 
     def save_sqlite(self, filename="out/sqlite.csv"):
         """ Save records to a SQLite database. """
-        pass
+        self.logger.debug("Saving data to a sqlite database is not yet supported.")
+        sys.exit(1)
 
     def counter(self, field):
         """ Return a Counter containing the sum of unique elements in a
