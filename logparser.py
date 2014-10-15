@@ -3,7 +3,7 @@
 # @Author:             Nathan Farrar
 # @Date:               2014-10-14 11:28:09
 # @Last Modified by:   Nathan Farrar
-# @Last Modified time: 2014-10-14 20:12:52
+# @Last Modified time: 2014-10-14 20:19:00
 
 import csv
 import logging
@@ -14,14 +14,13 @@ import sys
 from datetime import datetime
 
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+
 
 
 class LogParser:
     """ Parse log records from a CSV file. """
 
-    def __init__(self, name='CSVLogger'):
+    def __init__(self, name='Log Parser'):
         """ Take a path. Identify the dialect and field names from the
         first row. """
 
@@ -189,9 +188,12 @@ class LogParser:
         dumping the data to a json file."""
 
 if __name__ == '__main__':
-    csvfile = 'dict.leo.org.csv'
+    logging.basicConfig(level=logging.DEBUG)
+    logger = logging.getLogger(__name__)
 
-    p = LogParser('BlueCoat Log Parser')
+    csvfile = 'data/records.csv'
+
+    p = LogParser()
     p.load_csv(csvfile)
     p.summary()
 
